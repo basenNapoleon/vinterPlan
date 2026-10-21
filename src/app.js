@@ -249,6 +249,7 @@ function vyInst() {
     <button class="knapp" id="i_spara">Spara och synka</button>
     <p class="liten">${ko.length} ändringar väntar på att skickas. ${senast ? 'Senast hämtat ' + new Date(senast).toLocaleString('sv-SE') : 'Inget hämtat från arket än, appen visar den inbyggda planen.'}</p>
     <button class="knapp sekundar" id="i_synk">Synka nu</button>
+    <p class="version">Version ${typeof VERSION === 'string' ? VERSION : 'dev'}</p>
   </section>`;
 }
 

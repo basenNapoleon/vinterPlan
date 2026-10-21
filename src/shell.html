@@ -16,6 +16,9 @@
 html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
 /* Appskal: dokumentet scrollar aldrig, bara #rull. Då kan iOS inte flytta den nedre menyn när sidhöjden ändras. */
 html,body{height:100%;overflow:hidden}
+/* iOS 26 hemskärmsläge (WebKit-bugg 301108): med genomskinlig statusrad blir ytan en statusrad för kort
+   om sidan inte är minst lika hög som skärmen. Gör html så hög, max skärmhöjden. */
+@media (display-mode: standalone){html{height:auto;min-height:min(100lvh,calc(100% + env(safe-area-inset-top)))}}
 /* Låst mot skärmens kanter. height:100% blir ca en statusrad för kort i iOS hemskärmsläge, därför position:fixed */
 body{position:fixed;top:0;right:0;bottom:0;left:0;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
 #rull{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
@@ -72,6 +75,7 @@ textarea{resize:vertical;margin-top:4px}
 .bort{border:0;background:none;font-size:24px;color:#b55;width:36px}
 .info{background:#fff;border-radius:14px;padding:4px 16px 14px;margin-top:12px}
 .info p{margin:0 0 6px}
+.version{text-align:center;font-size:12px;color:var(--mut);margin-top:16px}
 .info label{display:block;font-size:13px;color:var(--mut);margin-top:12px}
 .summa{text-align:center;color:var(--mut);font-size:14px;margin:-4px 0 12px}
 .vecka{list-style:none;margin:0;padding:0}
@@ -82,7 +86,7 @@ textarea{resize:vertical;margin-top:4px}
 .vd b{display:block;font-size:17px}.vd span{font-size:13px;color:var(--mut)}
 .vp p{margin:6px 0 0;font-size:14px;color:#3a4552}
 .tom{text-align:center;padding:40px 8px}
-nav{flex:none;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--linje);padding-bottom:env(safe-area-inset-bottom)}
+nav{flex:none;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--linje);padding-bottom:max(6px,env(safe-area-inset-bottom))}
 nav a{text-align:center;padding:10px 0 8px;font-size:12px;color:var(--mut);font-weight:600}
 nav a svg{display:block;margin:0 auto 2px;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 nav a.aktiv{color:var(--navy)}
