@@ -16,7 +16,8 @@
 html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
 /* Appskal: dokumentet scrollar aldrig, bara #rull. Då kan iOS inte flytta den nedre menyn när sidhöjden ändras. */
 html,body{height:100%;overflow:hidden}
-body{display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+/* Låst mot skärmens kanter. height:100% blir ca en statusrad för kort i iOS hemskärmsläge, därför position:fixed */
+body{position:fixed;top:0;right:0;bottom:0;left:0;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
 #rull{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 main{max-width:560px;margin:0 auto;padding:8px 16px 24px}
 a{color:inherit;text-decoration:none}
