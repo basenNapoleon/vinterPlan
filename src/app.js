@@ -266,7 +266,7 @@ function rendera() {
   else h = vyDag(idag());
   $('#vy').innerHTML = h;
   document.querySelectorAll('nav a').forEach(a => a.classList.toggle('aktiv', a.dataset.vy === (vy === 'dag' && arg !== idag() ? 'vecka' : (vy === 'gym' || vy === 'lyft' ? 'idag' : (vy === 'ovning' ? 'ovningar' : vy)))));
-  window.scrollTo(0, 0);
+  document.getElementById('rull').scrollTop = 0;
   visaSynk();
 }
 
