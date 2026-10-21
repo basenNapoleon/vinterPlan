@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F3A5F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vinterplan">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Vinterplan</title>
+<style>
+:root{--navy:#1F3A5F;--ink:#16202c;--mut:#6b7684;--bg:#f4f5f7;--kort:#fff;--linje:#e3e6ea;--gym:#D6C4ED;--ok:#2e7d4f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+body{padding:env(safe-area-inset-top) 0 calc(72px + env(safe-area-inset-bottom))}
+main{max-width:560px;margin:0 auto;padding:8px 16px 24px}
+a{color:inherit;text-decoration:none}
+h1{font-size:22px;margin:0;line-height:1.2}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:18px 0 8px}
+.liten{font-size:13px;color:var(--mut)}
+.synk{font-size:12px;text-align:center;padding:6px 16px;color:var(--mut);background:#e9ecf0}
+.synk.ok{background:#e6f2ea;color:var(--ok)}.synk.fel{background:#fbe5e5;color:#a33}.synk.av{background:#eef0f3}
+.daghuvud{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px;margin:10px 0 14px;text-align:center}
+.pil{font-size:30px;line-height:44px;height:44px;border-radius:12px;background:#fff;border:1px solid var(--linje);color:var(--navy)}
+.pil[aria-disabled=true]{opacity:.3;pointer-events:none}
+.kort{display:block;background:var(--kort);border-radius:14px;border-left:8px solid #ccc;padding:14px 16px;margin:0 0 12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.korthuvud{display:flex;justify-content:space-between;align-items:center}
+.chip{display:inline-block;padding:3px 10px;border-radius:999px;font-weight:700;font-size:14px;color:#1d2530;margin-right:6px}
+.km{font-weight:700;color:var(--mut)}
+.pass{margin:10px 0 0;font-size:17px}
+.gymkort .pass{color:var(--navy);font-weight:600}
+.strava{margin:10px 0 0;padding-top:10px;border-top:1px solid var(--linje);font-size:14px;color:var(--mut)}
+.strava b{color:var(--ink)}
+.logg{background:#fff;border-radius:14px;padding:14px 16px}
+.klar{width:100%;padding:16px;border-radius:12px;border:2px solid var(--navy);background:#fff;color:var(--navy);font-size:17px;font-weight:700}
+.klar.pa{background:var(--ok);border-color:var(--ok);color:#fff}
+.rpe{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.rpe.sex{grid-template-columns:repeat(6,1fr)}
+.rpe button{padding:12px 0;border-radius:10px;border:1px solid var(--linje);background:#f7f8fa;font-size:16px;font-weight:600;color:var(--ink)}
+.rpe button.pa{background:var(--navy);color:#fff;border-color:var(--navy)}
+textarea,input{width:100%;font:inherit;padding:12px;border-radius:10px;border:1px solid var(--linje);background:#fff;color:var(--ink)}
+textarea{resize:vertical;margin-top:4px}
+.knapp{display:block;width:100%;text-align:center;padding:15px;border-radius:12px;border:0;background:var(--navy);color:#fff;font-size:17px;font-weight:700;margin-top:14px}
+.knapp.sekundar{background:#fff;color:var(--navy);border:1px solid var(--linje)}
+.lista{list-style:none;margin:0;padding:0}
+.lista li{background:#fff;border-radius:14px;margin-bottom:8px}
+.lista li:nth-child(even){background:#fbfbfc}
+.lista a{display:grid;grid-template-columns:76px 1fr 24px;align-items:center;gap:10px;padding:8px 12px}
+.lista b{display:block}.lista span{font-size:14px;color:var(--mut)}
+.lista i,.vecka i{font-style:normal;color:var(--mut);font-size:20px}
+.bock{color:var(--ok)!important;font-weight:700}
+.fig{width:100%;height:auto}
+.fig.liten{width:76px;background:#f4f1fa;border-radius:10px}
+.fig line{stroke-linecap:round;stroke-width:5}
+.fig .kropp{stroke:var(--navy)}.fig .bak{stroke:#9fb1c7}.fig .huvud{fill:var(--navy)}.fig .stang{fill:#c8692b}
+.fig .golv{stroke:#c9ced6;stroke-width:2}.fig .prop{fill:#dcd6e8}
+.figurbox{background:#f4f1fa;border-radius:16px;padding:8px}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.dos div{background:#fff;border-radius:12px;padding:10px 12px}.dos span{display:block;font-size:12px;color:var(--mut)}.dos b{font-size:18px}
+.set{background:#fff;border-radius:14px;padding:4px 14px 14px}
+.set table{width:100%;border-collapse:collapse}
+.set th{font-size:12px;color:var(--mut);text-align:left;padding:6px 4px}
+.set td{padding:4px}.set td:first-child{width:28px;color:var(--mut);font-weight:700}
+.set tr:nth-child(even) td{background:#f6f7f9}
+.set input{padding:10px;font-size:18px;text-align:center}
+.bort{border:0;background:none;font-size:24px;color:#b55;width:36px}
+.info{background:#fff;border-radius:14px;padding:4px 16px 14px;margin-top:12px}
+.info p{margin:0 0 6px}
+.info label{display:block;font-size:13px;color:var(--mut);margin-top:12px}
+.summa{text-align:center;color:var(--mut);font-size:14px;margin:-4px 0 12px}
+.vecka{list-style:none;margin:0;padding:0}
+.vecka li{background:#fff;border-radius:12px;margin-bottom:6px}
+.vecka li:nth-child(even){background:#f9fafb}
+.vecka li.idag{outline:3px solid #F2C233}
+.vecka a{display:grid;grid-template-columns:58px 1fr 20px;gap:10px;align-items:center;padding:10px 12px}
+.vd b{display:block;font-size:17px}.vd span{font-size:13px;color:var(--mut)}
+.vp p{margin:6px 0 0;font-size:14px;color:#3a4552}
+.tom{text-align:center;padding:40px 8px}
+nav{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--linje);padding-bottom:env(safe-area-inset-bottom)}
+nav a{text-align:center;padding:10px 0 8px;font-size:12px;color:var(--mut);font-weight:600}
+nav a svg{display:block;margin:0 auto 2px;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+nav a.aktiv{color:var(--navy)}
+</style>
+</head>
+<body>
+<div id="synk" class="synk"></div>
+<main id="vy"></main>
+<nav>
+  <a href="#idag" data-vy="idag"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Idag</a>
+  <a href="#vecka" data-vy="vecka"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Vecka</a>
+  <a href="#ovningar" data-vy="ovningar"><svg viewBox="0 0 24 24"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg>Övningar</a>
+  <a href="#inst" data-vy="inst"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>Inställn.</a>
+</nav>
+<script>/*DATA*/</script>
+<script>/*FIGURES*/</script>
+<script>/*APP*/</script>
+</body>
+</html>
