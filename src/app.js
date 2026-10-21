@@ -16,8 +16,9 @@ let cfg = LS.get('cfg', null);          // { api, token }
 let data = LS.get('data', null) || PLAN; // senaste från arket, annars inbäddad plan
 let ko = LS.get('ko', []);               // köade ändringar
 let lokal = LS.get('lokal', { days: {}, lifts: {} }); // lokala värden per rad
-let sets = LS.get('sets', {});           // set per styrkerad: [{kg, reps}]
+let sets = LS.get('sets', {});           // osparade utkast per styrkerad: [{kg, reps}]. Sparade set läses från arket (Reps)
 let senast = LS.get('senast', null);
+if (LS.get('setsv', 1) < 2) { sets = {}; LS.set('sets', sets); LS.set('setsv', 2); } // äldre version sparade alla set lokalt
 let synkStatus = '';
 
 const $ = (s) => document.querySelector(s);
@@ -117,7 +118,7 @@ function vyDag(iso) {
   const prev = data.days[data.days.findIndex(x => x.date === iso) - 1];
   const next = data.days[data.days.findIndex(x => x.date === iso) + 1];
   const lyftLista = lyftForDag(iso);
-  const loggade = lyftLista.filter(l => l.kg !== '' && l.kg != null || (sets[l.row] || []).length).length;
+  const loggade = lyftLista.filter(l => (l.kg !== '' && l.kg != null) || (l.reps !== '' && l.reps != null)).length;
   const arIdag = iso === idag();
   let h = `<header class="daghuvud">
     <a class="pil" href="${prev ? '#dag/' + prev.date : '#'}" ${prev ? '' : 'aria-disabled="true"'}>‹</a>
@@ -153,11 +154,15 @@ function vyGym(iso) {
   const lista = lyftForDag(iso);
   let h = `<header class="daghuvud"><a class="pil" href="#dag/${iso}">‹</a><div><div class="liten">${DAGLANG[d.dag]} ${datumText(iso)}</div><h1>${esc(d.styrka)}</h1></div><span></span></header>`;
   h += `<ul class="lista">` + lista.map(l => {
-    const s = sets[l.row] || [];
-    const klar = s.length || (l.kg !== '' && l.kg != null);
+    const klar = (l.reps !== '' && l.reps != null) || (l.kg !== '' && l.kg != null);
     return `<li><a href="#lyft/${l.row}">${figurSVG(l.ovning, true)}<div><b>${esc(l.ovning)}</b><span>${esc(l.plan)}${forraKg(l) !== '' ? ' · förra ' + esc(forraKg(l)) + ' kg' : ''}</span></div>${klar ? '<i class="bock">✓</i>' : '<i>›</i>'}</a></li>`;
   }).join('') + `</ul>`;
   return h;
+}
+
+function utkast(row) {
+  if (!sets[row]) sets[row] = parseSets(lyft(row).reps);
+  return sets[row];
 }
 
 function tidsbaserad(plan) { return /\bs\b|s\/(ben|sida)/.test(plan); }
@@ -165,7 +170,7 @@ function tidsbaserad(plan) { return /\bs\b|s\/(ben|sida)/.test(plan); }
 function parseSets(text) {
   // "60×8, 60×8, 62,5×7" -> [{kg:60,reps:8},...]
   if (!text) return [];
-  return String(text).split(',').map(x => x.trim()).filter(Boolean).map(x => {
+  return String(text).split(/,\s+/).map(x => x.trim()).filter(Boolean).map(x => {
     const m = x.replace(',', '.').match(/^([\d.]+)?\s*×\s*([\d.]+)/);
     return m ? { kg: m[1] || '', reps: m[2] } : null;
   }).filter(Boolean);
@@ -175,8 +180,8 @@ function vyLyft(row) {
   const l = lyft(row);
   if (!l) return '<p>Hittar inte övningen.</p>';
   const o = ovning(l.ovning) || {};
-  if (!sets[row]) sets[row] = parseSets(l.reps);
-  const s = sets[row];
+  // Utkast om du har börjat ändra, annars det som är sparat i arket
+  const s = sets[row] || parseSets(l.reps);
   const tid = tidsbaserad(l.plan);
   const forra = forraKg(l);
   const lista = lyftForDag(l.date);
@@ -279,14 +284,15 @@ document.addEventListener('click', (e) => {
   else if (ds.rpe) { andra('day', +ds.rpe, { rpe: +ds.v }); rendera(); }
   else if (ds.lrpe) { lokal.lifts[+ds.lrpe] = Object.assign({}, lokal.lifts[+ds.lrpe], { rpe: +ds.v }); sparaLokalt(); rendera(); }
   else if (ds.nyttset) {
-    const row = +ds.nyttset, s = sets[row] || (sets[row] = []);
+    const row = +ds.nyttset, s = utkast(row);
     const sista = s[s.length - 1] || { kg: forraKg(lyft(row)), reps: '' };
     s.push({ kg: sista.kg, reps: sista.reps }); sparaLokalt(); rendera();
     const inp = document.querySelectorAll(`[data-set="${row}"][data-f="reps"]`); if (inp.length) inp[inp.length - 1].focus();
   }
-  else if (ds.bort) { sets[+ds.bort].splice(+ds.i, 1); sparaLokalt(); rendera(); }
+  else if (ds.bort) { utkast(+ds.bort).splice(+ds.i, 1); sparaLokalt(); rendera(); }
   else if (ds.sparalyft) {
-    const row = +ds.sparalyft, s = (sets[row] || []).filter(x => x.kg !== '' || x.reps !== '');
+    const row = +ds.sparalyft, s = (sets[row] || parseSets(lyft(row).reps)).filter(x => x.kg !== '' || x.reps !== '');
+    delete sets[row];
     const kgs = s.map(x => parseFloat(String(x.kg).replace(',', '.'))).filter(x => !isNaN(x));
     const l = lyft(row);
     andra('lift', row, {
@@ -306,7 +312,7 @@ document.addEventListener('click', (e) => {
 
 document.addEventListener('input', (e) => {
   const t = e.target, ds = t.dataset;
-  if (ds.set) { sets[+ds.set][+ds.i][ds.f] = t.value; sparaLokalt(); }
+  if (ds.set) { utkast(+ds.set)[+ds.i][ds.f] = t.value; sparaLokalt(); }
 });
 document.addEventListener('change', (e) => {
   const t = e.target, ds = t.dataset;
