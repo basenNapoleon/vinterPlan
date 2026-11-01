@@ -69,8 +69,9 @@ function doGet(e) {
       kg: r[5], reps: r[6], rpe: r[7], forra: r[8], kommentar: r[9]
     })).filter(l => l.date);
 
-    // Övningar: rad 3–20, A Övning, B Pass, C Varför, D Utförande, E Fel, F Baksida/ljumske
-    const ov = ss.getSheetByName('Övningar').getRange('A3:F20').getValues()
+    // Övningar: från rad 3 till sista raden, A Övning, B Pass, C Varför, D Utförande, E Fel, F Baksida/ljumske
+    const os = ss.getSheetByName('Övningar');
+    const ov = os.getRange(3, 1, Math.max(1, os.getLastRow() - 2), 6).getValues()
       .filter(r => r[0])
       .map(r => ({ namn: r[0], pass: r[1], varfor: r[2], utforande: r[3], fel: r[4], tank: r[5] }));
 
