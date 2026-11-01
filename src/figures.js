@@ -97,12 +97,28 @@ FIG['Löpskolning: A-skip, B-skip, höga knän'] = { dur: 0.9, props: [], poses:
   P({ k2:[122,72], f2:[114,96], k1:[101,98], f1:[100,124], e1:[110,52], w1:[104,68], e2:[90,50], w2:[94,36] })
 ]};
 
+// Höftböjare. Vägg bakom vid isometriskt, stöd framför vid knälyft med band.
+FIG['Isometriskt knälyft (höftböjare)'] = { dur: 3, props: [['rect',84,4,5,122]], poses: [
+  P({ k1:[124,72], f1:[118,98], e1:[108,50], w1:[120,68], e2:[94,52], w2:[92,70] }),
+  P({ k1:[124,71], f1:[118,97], e1:[108,49], w1:[120,67], e2:[94,52], w2:[92,70] })
+]};
+FIG['Knälyft med band, långsamt'] = { dur: 4, props: [['rect',138,60,6,66]], poses: [
+  P({ e1:[118,46], w1:[138,60] }),
+  P({ k1:[124,72], f1:[118,98], e1:[118,46], w1:[138,60] })
+]};
+FIG['Knälyft med band, explosivt'] = { dur: 1.4, props: [['rect',138,60,6,66]], poses: [
+  P({ e1:[118,46], w1:[138,60] }),
+  P({ k1:[126,70], f1:[120,96], e1:[118,46], w1:[138,60] })
+]};
+
 // Namn i appen som pekar på samma figur
+FIG['__stående'] = { dur: 4, props: [], poses: [P({}), P({})] };
 const FIG_ALIAS = { 'Knäböj': 'Knäböj eller trap bar-marklyft' };
 
 function figurSVG(namn, liten) {
   const f = FIG[namn] || FIG[FIG_ALIAS[namn]];
-  if (!f) return '';
+  // Saknas figur: stående figur i listor, så att layouten håller
+  if (!f) return liten ? figurSVG('__stående', true) : '';
   const ps = f.poses.concat([f.poses[0]]);
   const vals = (key, i) => ps.map(p => (p[key] || p[key.replace('2', '1')])[i]).join(';');
   const dur = f.dur + 's';
